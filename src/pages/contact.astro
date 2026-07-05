@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<BaseLayout
+  title="お問い合わせ"
+  description="エンジニア転職ナビへのお問い合わせページです。ご質問・ご意見・記事へのご指摘はお気軽にどうぞ。"
+>
+  <div class="contact-page">
+    <h1 class="contact-h1">お問い合わせ</h1>
+    <p class="contact-lead">当サイトへのご質問・ご意見・記事内容へのご指摘・取材/掲載のご相談は、以下よりお気軽にお送りください。</p>
+
+    <div class="contact-card">
+      <div class="contact-icon">✉️</div>
+      <div class="contact-body">
+        <p class="contact-method-title">メールでのお問い合わせ</p>
+        <p class="contact-method-desc">下記アドレス宛にご連絡ください。<br>通常2〜3日以内にご返信いたします。</p>
+        <a href="mailto:ima9036282179@gmail.com" class="contact-btn">
+          メールで問い合わせる →
+        </a>
+      </div>
+    </div>
+
+    <div class="contact-notes">
+      <h2>お問い合わせの前にご確認ください</h2>
+      <ul>
+        <li>記事内容に誤りや古い情報を発見された場合は、ぜひご連絡ください。確認のうえ迅速に修正します。</li>
+        <li>個別の転職相談・キャリア相談へのご回答は、内容によりお受けできない場合があります。</li>
+        <li>営業・スパム目的のお問い合わせにはお答えできません。</li>
+        <li>返信までお時間をいただく場合がございます。あらかじめご了承ください。</li>
+      </ul>
+    </div>
+
+    <div class="contact-about">
+      <a href={base}>← トップページに戻る</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+.contact-page { max-width: 680px; margin: 0 auto; padding: 2.5rem 0 5rem; }
+.contact-h1 { font-size: 1.8rem; font-weight: 900; color: var(--text); margin-bottom: 0.8rem; }
+.contact-lead { font-size: 0.95rem; color: var(--text); line-height: 1.8; margin-bottom: 2rem; }
+.contact-card { display: flex; gap: 1.25rem; align-items: flex-start; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; margin-bottom: 2.5rem; }
+.contact-icon { font-size: 2.2rem; flex-shrink: 0; }
+.contact-method-title { font-weight: 900; font-size: 1.05rem; margin: 0 0 0.4rem; color: var(--text); }
+.contact-method-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin: 0 0 1rem; }
+.contact-btn { display: inline-block; padding: 0.7rem 1.5rem; background: linear-gradient(135deg, #0B1220, #2563EB); color: #fff; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: opacity 0.15s; }
+.contact-btn:hover { opacity: 0.88; color: #fff; }
+.contact-notes { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1.75rem; margin-bottom: 2.5rem; }
+.contact-notes h2 { font-size: 1rem; font-weight: 700; margin: 0 0 1rem; color: var(--text); padding-left: 0.7rem; border-left: 3px solid var(--accent); }
+.contact-notes ul { margin: 0; padding-left: 1.2rem; }
+.contact-notes li { font-size: 0.88rem; color: var(--text); line-height: 1.8; margin-bottom: 0.5rem; }
+.contact-about { text-align: center; }
+.contact-about a { color: var(--accent); font-size: 0.9rem; font-weight: 700; text-decoration: none; }
+.contact-about a:hover { text-decoration: underline; }
+</style>

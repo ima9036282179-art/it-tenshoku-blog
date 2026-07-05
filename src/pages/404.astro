@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<BaseLayout title="404 - ページが見つかりません">
+  <div class="not-found">
+    <div class="not-found-inner">
+      <div class="not-found-icon">🐉</div>
+      <h1 class="not-found-title">404</h1>
+      <p class="not-found-sub">そのページは見つかりませんでした</p>
+      <blockquote class="not-found-quote">
+        「諦めたらそこで試合終了じゃない。<br>諦めた瞬間から、負けが始まるんだ。」<br>
+        <cite>― 桜木建二</cite>
+      </blockquote>
+      <div class="not-found-actions">
+        <a href={base} class="not-found-btn-primary">ホームへ戻る</a>
+        <a href={`${base}search/`} class="not-found-btn-secondary">🔍 記事を検索する</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 4rem 1.5rem;
+  }
+
+  .not-found-inner {
+    max-width: 480px;
+  }
+
+  .not-found-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .not-found-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .not-found-sub {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .not-found-quote {
+    border-left: 4px solid var(--accent);
+    padding: 0.8rem 1.25rem;
+    background: var(--bg-card);
+    border-radius: 0 10px 10px 0;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+
+  .not-found-quote cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .not-found-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .not-found-btn-primary {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    padding: 0.7rem 1.75rem;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    transition: opacity 0.2s, transform 0.2s;
+    text-decoration: none;
+  }
+  .not-found-btn-primary:hover {
+    opacity: 0.87;
+    transform: translateY(-2px);
+    color: #fff;
+  }
+
+  .not-found-btn-secondary {
+    background: var(--bg-card);
+    color: var(--text);
+    font-weight: 700;
+    padding: 0.7rem 1.75rem;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none;
+  }
+  .not-found-btn-secondary:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    color: var(--text);
+  }
+</style>

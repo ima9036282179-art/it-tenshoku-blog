@@ -1,0 +1,25 @@
+---
+---
+<button class="theme-toggle" id="themeToggle" aria-label="ダークモード切り替え">
+  <span class="icon-sun">☀️</span>
+  <span class="icon-moon">🌙</span>
+</button>
+
+<script>
+  function updateIcon() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const sun = document.querySelector('.icon-sun') as HTMLElement;
+    const moon = document.querySelector('.icon-moon') as HTMLElement;
+    if (sun && moon) {
+      sun.style.display = isDark ? 'none' : 'inline';
+      moon.style.display = isDark ? 'inline' : 'none';
+    }
+  }
+  updateIcon();
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateIcon();
+  });
+</script>

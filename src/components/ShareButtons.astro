@@ -1,0 +1,38 @@
+---
+interface Props {
+  title: string;
+  url: string;
+}
+const { title, url } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+---
+
+<div class="share-buttons">
+  <p class="share-label">この記事をシェアする</p>
+  <div class="share-list">
+    <a
+      href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
+      target="_blank" rel="noopener noreferrer"
+      class="share-btn share-x"
+    >𝕏 でシェア</a>
+    <a
+      href={`https://social-plugins.line.me/lineit/share?url=${encodedUrl}`}
+      target="_blank" rel="noopener noreferrer"
+      class="share-btn share-line"
+    >LINE でシェア</a>
+    <button class="share-btn share-copy" id="copyBtn">🔗 URLをコピー</button>
+  </div>
+</div>
+
+<script>
+  document.getElementById('copyBtn')?.addEventListener('click', () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const btn = document.getElementById('copyBtn') as HTMLButtonElement;
+      if (btn) {
+        btn.textContent = '✅ コピーしました！';
+        setTimeout(() => { btn.textContent = '🔗 URLをコピー'; }, 2000);
+      }
+    });
+  });
+</script>

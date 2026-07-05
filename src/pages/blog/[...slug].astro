@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await entry.render();
+
+// 同カテゴリ内の前後記事（pubDate昇順でシリーズ順）
+const allPosts = await getCollection('blog');
+const sameCat = allPosts
+  .filter(p => p.data.category === entry.data.category)
+  .sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+const idx = sameCat.findIndex(p => p.slug === entry.slug);
+const prevPost = idx > 0 ? sameCat[idx - 1] : null;
+const nextPost = idx < sameCat.length - 1 ? sameCat[idx + 1] : null;
+---
+
+<BlogPostLayout entry={entry} headings={headings} prevPost={prevPost} nextPost={nextPost}>
+  <Content />
+</BlogPostLayout>

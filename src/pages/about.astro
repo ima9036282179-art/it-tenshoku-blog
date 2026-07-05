@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const posts = await getCollection('blog');
+const totalPosts = posts.length;
+const categories = [...new Set(posts.map(p => p.data.category).filter(Boolean))];
+---
+
+<BaseLayout
+  title="運営者情報"
+  description="エンジニア転職ナビの運営者情報。ITエンジニアの転職を後悔しない選択にするための情報を、現場目線で発信しています。"
+>
+  <article class="about-page">
+
+    <header class="about-header">
+      <p class="about-eyecatch-label">💻 エンジニア転職ナビ について</p>
+      <h1 class="about-title">ITエンジニアの転職を、<br>後悔しない選択にするために</h1>
+    </header>
+
+    <div class="about-profile-block">
+      <div class="about-avatar-icon">💻</div>
+      <div class="about-profile-body">
+        <p class="about-profile-name">エンジニア転職ナビ 運営部</p>
+        <p class="about-profile-tag">IT・エンジニア転職の情報メディア</p>
+        <p class="about-profile-desc">Web・インフラ・SIerなど複数の現場を経験したエンジニアの視点から、転職の進め方・タイミング・スキル・エージェント選びを、実体験ベースでわかりやすく解説しています。</p>
+      </div>
+    </div>
+
+    <div class="about-stats">
+      <div class="about-stat">
+        <p class="stat-num">{totalPosts}<span class="stat-unit">本</span></p>
+        <p class="stat-label">公開記事数</p>
+      </div>
+      <div class="about-stat">
+        <p class="stat-num">{categories.length}<span class="stat-unit">種</span></p>
+        <p class="stat-label">カテゴリ</p>
+      </div>
+      <div class="about-stat">
+        <p class="stat-num">IT<span class="stat-unit"></span></p>
+        <p class="stat-label">特化ジャンル</p>
+      </div>
+      <div class="about-stat">
+        <p class="stat-num">現場<span class="stat-unit">目線</span></p>
+        <p class="stat-label">執筆方針</p>
+      </div>
+    </div>
+
+    <section class="about-section">
+      <h2>このメディアのミッション</h2>
+      <p>ITエンジニアの転職は、情報の非対称性が大きい世界です。「今の年収が適正なのか」「どのエージェントを使えばいいのか」「未経験から本当に転職できるのか」——調べても、ポジショントークばかりで本音が見えにくい。</p>
+      <p>このメディアは、そうした<strong>「エンジニアが本当に知りたいこと」</strong>に、現場経験のある目線でまっすぐ答えることを目的にしています。特定のサービスを一方的に推すのではなく、メリットもデメリットも率直に書きます。</p>
+    </section>
+
+    <section class="about-section">
+      <h2>このサイトで読めること</h2>
+      <div class="about-contents-grid">
+        <div class="about-content-card">
+          <span class="content-icon">🧭</span>
+          <p class="content-title">転職ノウハウ</p>
+          <p class="content-desc">転職活動の進め方・準備・面接対策・ベストなタイミング</p>
+        </div>
+        <div class="about-content-card">
+          <span class="content-icon">⚖️</span>
+          <p class="content-title">エージェント比較</p>
+          <p class="content-desc">IT特化型の転職エージェント・転職サイトを条件別に徹底比較</p>
+        </div>
+        <div class="about-content-card">
+          <span class="content-icon">📚</span>
+          <p class="content-title">スキル・学習</p>
+          <p class="content-desc">市場価値を高めるスキルセットと、効率的な学習ロードマップ</p>
+        </div>
+        <div class="about-content-card">
+          <span class="content-icon">🗣️</span>
+          <p class="content-title">体験談</p>
+          <p class="content-desc">リアルな転職成功・失敗の記録から学べる教訓</p>
+        </div>
+        <div class="about-content-card">
+          <span class="content-icon">🏢</span>
+          <p class="content-title">働き方</p>
+          <p class="content-desc">年収・リモートワーク・企業文化など、働く環境の見極め方</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>編集ポリシー</h2>
+      <blockquote>
+        「売りたい順」ではなく、<br>「読者が得をする順」で書く。
+      </blockquote>
+      <p>当サイトは広告・アフィリエイトによって運営されていますが、紹介の順序や評価は、報酬額ではなく<strong>エンジニアにとっての有用性</strong>を基準にしています。デメリットや向かない人の条件も明記し、読者が自分で判断できる材料を提供します。</p>
+    </section>
+
+    <section class="about-section">
+      <h2>運営・技術について</h2>
+      <p>当サイトは <a href="https://astro.build/" target="_blank" rel="noopener">Astro</a> で構築し、GitHub Pages で公開しています。表示速度とアクセシビリティを重視した静的サイトです。ご意見・ご指摘は<a href={`${base}contact/`}>お問い合わせ</a>からお気軽にどうぞ。</p>
+    </section>
+
+    <section class="about-section">
+      <h2>リンク</h2>
+      <div class="about-links">
+        <a href={`${base}rss.xml`} class="about-link-btn">📡 RSSフィードで購読する</a>
+        <a href={`${base}privacy/`} class="about-link-btn-sub">プライバシーポリシー・免責事項</a>
+      </div>
+    </section>
+
+    <div class="about-back">
+      <a href={base} class="series-btn">← 記事一覧へ戻る</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+.about-page { max-width: 720px; margin: 0 auto; padding: 2rem 0 4rem; }
+.about-header { margin-bottom: 2rem; }
+.about-eyecatch-label { font-size: 0.85rem; color: var(--accent); font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+.about-title { font-size: 1.9rem; font-weight: 900; margin: 0; color: var(--text); line-height: 1.4; }
+.about-profile-block { display: flex; align-items: flex-start; gap: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
+.about-avatar-icon { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #0B1220, #2563EB); display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; border: 3px solid var(--accent); }
+.about-profile-body { display: flex; flex-direction: column; gap: 0.3rem; }
+.about-profile-name { font-weight: 900; font-size: 1.1rem; margin: 0; }
+.about-profile-tag { font-size: 0.78rem; color: var(--accent); font-weight: 700; margin: 0; }
+.about-profile-desc { font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.7; }
+.about-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 2.5rem; }
+.about-stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+.stat-num { font-size: 1.6rem; font-weight: 900; color: var(--accent); margin: 0 0 0.2rem; line-height: 1; }
+.stat-unit { font-size: 0.9rem; }
+.stat-label { font-size: 0.72rem; color: var(--text-muted); margin: 0; }
+.about-section { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
+.about-section:last-of-type { border-bottom: none; }
+.about-section h2 { font-size: 1.15rem; font-weight: 900; border-left: 4px solid var(--accent); padding-left: 0.85rem; margin: 0 0 1rem; color: var(--text); }
+.about-section p { line-height: 1.85; color: var(--text); margin-bottom: 0.8rem; font-size: 0.95rem; }
+.about-section p:last-child { margin-bottom: 0; }
+.about-section a { color: var(--accent); }
+.about-section blockquote { border-left: 4px solid var(--accent); background: var(--bg-card); padding: 1rem 1.25rem; border-radius: 0 10px 10px 0; font-size: 1rem; margin: 0 0 1rem; color: var(--text); line-height: 1.7; font-weight: 700; }
+.about-contents-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.about-content-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+.content-icon { font-size: 1.4rem; }
+.content-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin: 0.3rem 0 0.3rem; }
+.content-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
+.about-links { display: flex; flex-direction: column; gap: 0.6rem; }
+.about-link-btn { display: block; text-align: center; padding: 0.8rem; background: linear-gradient(135deg, #0B1220, #2563EB); color: #fff; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: opacity 0.15s; }
+.about-link-btn:hover { opacity: 0.88; color: #fff; }
+.about-link-btn-sub { display: block; text-align: center; padding: 0.6rem; border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 0.82rem; text-decoration: none; transition: border-color 0.15s; }
+.about-link-btn-sub:hover { border-color: var(--accent); color: var(--accent); }
+.about-back { margin-top: 2.5rem; text-align: center; }
+@media (max-width: 600px) {
+  .about-title { font-size: 1.5rem; }
+  .about-stats { grid-template-columns: repeat(2, 1fr); }
+  .about-contents-grid { grid-template-columns: 1fr; }
+  .about-profile-block { flex-direction: column; align-items: center; text-align: center; }
+}
+</style>

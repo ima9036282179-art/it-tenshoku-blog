@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<BaseLayout title="記事検索" description="ドラゴン桜2ブログの記事をキーワードで検索できます。">
+  <div class="search-wrap">
+    <h1 class="search-heading">🔍 記事検索</h1>
+    <p class="search-desc">キーワードを入力すると、タイトル・本文・タグから記事を検索します。</p>
+    <div id="search"></div>
+    <p class="search-note" id="searchNote">検索を初期化しています…</p>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ base }}>
+  const pagefindBase = base + 'pagefind/';
+
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = pagefindBase + 'pagefind-ui.css';
+  document.head.appendChild(link);
+
+  const script = document.createElement('script');
+  script.src = pagefindBase + 'pagefind-ui.js';
+  script.onload = () => {
+    new window.PagefindUI({
+      element: '#search',
+      bundlePath: pagefindBase,
+      showSubResults: true,
+      showImages: true,
+      excerptLength: 50,
+      translations: {
+        placeholder: 'キーワードを入力…（例：桜木建二、勉強法、名言）',
+        zero_results: '「[SEARCH_TERM]」の検索結果はありません',
+        many_results: '[COUNT]件の記事が見つかりました',
+        one_result: '1件の記事が見つかりました',
+      },
+    });
+    document.getElementById('searchNote')?.remove();
+  };
+  script.onerror = () => {
+    const note = document.getElementById('searchNote');
+    if (note) note.textContent = '検索機能はサイト公開後にご利用いただけます。';
+  };
+  document.head.appendChild(script);
+</script>
+
+<style>
+  .search-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 0 5rem;
+  }
+
+  .search-heading {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+  }
+
+  .search-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .search-note {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  /* Pagefind UI カスタマイズ */
+  #search :global(.pagefind-ui__form) {
+    margin-bottom: 1.5rem;
+  }
+
+  #search :global(.pagefind-ui__search-input) {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem;
+  }
+
+  #search :global(.pagefind-ui__result) {
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    transition: box-shadow 0.18s;
+  }
+
+  #search :global(.pagefind-ui__result:hover) {
+    box-shadow: 0 4px 14px var(--shadow-hover);
+  }
+
+  #search :global(.pagefind-ui__result-title) {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  #search :global(.pagefind-ui__result-link) {
+    color: var(--accent);
+  }
+
+  #search :global(.pagefind-ui__result-excerpt) {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+</style>

@@ -1,0 +1,246 @@
+---
+import DarkModeToggle from '../components/DarkModeToggle.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'ITエンジニアの転職を成功させるための情報メディア。転職の進め方・タイミング・スキル・おすすめ転職エージェント比較を発信します。',
+  ogType = 'website',
+  ogImage,
+} = Astro.props;
+
+const siteTitle = 'エンジニア転職ナビ';
+// 独自ドメイン取得後は、このURLをあなたのドメインに変更してください。
+const siteUrl = 'https://ima9036282179-art.github.io/it-tenshoku-blog';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const canonicalUrl = Astro.url.href;
+const pageTitle = `${title} | ${siteTitle}`;
+const ogImageUrl = ogImage
+  ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`)
+  : `${siteUrl}/images/ogp-default.jpg`;
+
+const websiteSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteTitle,
+  url: `${siteUrl}/`,
+  description: 'ITエンジニアの転職を成功させるための情報メディア。',
+});
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- OGP -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content={siteTitle} />
+    <meta property="og:locale" content="ja_JP" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="alternate" type="application/rss+xml" title="エンジニア転職ナビ RSS" href={`${base}rss.xml`} />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+
+    <title>{pageTitle}</title>
+
+    <!--
+      ▼ Google Analytics GA4（新しい計測ID G-XXXXXXXXXX を発行して差し替えてください）
+      新プロパティを作成 → 測定ID を貼り付け → 下のコメントを外して有効化
+    -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    -->
+
+    <!--
+      ▼ Google AdSense
+      AdSense管理画面でこのサイト（ドメイン）を「サイトを追加」→ 審査通過後に有効化。
+      pub ID は既存アカウントのものをそのまま利用できます（ads.txt も設置済み）。
+      審査申請時は下のコメントを外してください。
+    -->
+    <!--
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3657824018849397"
+     crossorigin="anonymous"></script>
+    -->
+
+    <!-- WebSite 構造化データ -->
+    <script type="application/ld+json" set:html={websiteSchema} />
+
+    <!-- 各ページ固有タグ（記事の JSON-LD など） -->
+    <slot name="head" />
+
+    <!-- ダークモード FOUC 防止 -->
+    <script is:inline>
+      (function() {
+        const saved = localStorage.getItem('theme');
+        const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', saved || preferred);
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="read-progress" id="readProgress"></div>
+    <header class="site-header" id="site-header">
+      <div class="header-inner">
+        <a href={base} class="site-logo">
+          <span class="site-logo-icon">💻</span>
+          <span class="site-title">エンジニア転職ナビ</span>
+        </a>
+        <div class="header-right">
+          <DarkModeToggle />
+          <button class="nav-toggle" id="navToggle" aria-label="メニューを開く" aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+          <nav class="site-nav" id="siteNav">
+            <button class="nav-close" id="navClose" aria-label="メニューを閉じる">✕</button>
+            <a href={base}>ホーム</a>
+            <a href={`${base}tags/`}>カテゴリ</a>
+            <a href={`${base}about/`}>運営者情報</a>
+            <a href={`${base}contact/`}>お問い合わせ</a>
+            <a href={`${base}search/`}>🔍 検索</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- フルワイドスロット（ヒーローバナーなど） -->
+    <slot name="full-width" />
+
+    <main class="site-wrapper">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; {new Date().getFullYear()} エンジニア転職ナビ. Built with Astro.</p>
+      <div class="footer-sns">
+        <a href={`${base}rss.xml`} class="footer-sns-btn">RSS</a>
+      </div>
+      <div class="footer-legal">
+        <a href={`${base}privacy/`}>プライバシーポリシー・免責事項</a>
+        <span class="footer-sep">｜</span>
+        <a href={`${base}about/`}>運営者情報</a>
+        <span class="footer-sep">｜</span>
+        <a href={`${base}contact/`}>お問い合わせ</a>
+      </div>
+    </footer>
+
+    <!-- トップに戻るボタン -->
+    <button class="back-to-top" id="backToTop" aria-label="トップへ戻る">↑</button>
+  </body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>
+
+<script>
+  // ハンバーガーメニュー
+  const navToggle = document.getElementById('navToggle');
+  const navClose = document.getElementById('navClose');
+  const siteNav = document.getElementById('siteNav');
+  const navOverlay = document.getElementById('navOverlay');
+
+  function openNav() {
+    siteNav?.classList.add('open');
+    navOverlay?.classList.add('open');
+    navToggle?.classList.add('open');
+    navToggle?.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNav() {
+    siteNav?.classList.remove('open');
+    navOverlay?.classList.remove('open');
+    navToggle?.classList.remove('open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  navToggle?.addEventListener('click', () => {
+    siteNav?.classList.contains('open') ? closeNav() : openNav();
+  });
+  navClose?.addEventListener('click', closeNav);
+  navOverlay?.addEventListener('click', closeNav);
+  siteNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
+
+  // 読了プログレスバー
+  const progress = document.getElementById('readProgress');
+  if (progress) {
+    const updateProgress = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = h > 0 ? (window.scrollY / h * 100) + '%' : '0%';
+    };
+    window.addEventListener('scroll', updateProgress, { passive: true });
+  }
+
+  // ヘッダー スクロール時半透明化
+  const header = document.getElementById('site-header');
+  function updateHeader() {
+    if (window.scrollY > 20) {
+      header?.classList.add('scrolled');
+    } else {
+      header?.classList.remove('scrolled');
+    }
+  }
+  window.addEventListener('scroll', updateHeader, { passive: true });
+  updateHeader();
+
+  // トップに戻るボタン
+  const backToTop = document.getElementById('backToTop');
+  function updateBackToTop() {
+    if (window.scrollY > 320) {
+      backToTop?.classList.add('visible');
+    } else {
+      backToTop?.classList.remove('visible');
+    }
+  }
+  window.addEventListener('scroll', updateBackToTop, { passive: true });
+  backToTop?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // スクロール フェードイン（IntersectionObserver）
+  const fadeEls = document.querySelectorAll('.fade-in-up');
+  if (fadeEls.length > 0) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    fadeEls.forEach(el => io.observe(el));
+  }
+</script>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ima9036282179-art.github.io/it-tenshoku-blog/sitemap-index.xml

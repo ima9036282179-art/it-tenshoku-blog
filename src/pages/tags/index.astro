@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const tagMap = new Map<string, number>();
+posts.forEach(post => {
+  post.data.tags?.forEach(tag => {
+    tagMap.set(tag, (tagMap.get(tag) ?? 0) + 1);
+  });
+});
+const tags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
+const maxCount = tags[0]?.[1] ?? 1;
+const minCount = tags[tags.length - 1]?.[1] ?? 1;
+
+function fontSize(count: number): string {
+  if (maxCount === minCount) return '1rem';
+  const ratio = (count - minCount) / (maxCount - minCount);
+  const size = 0.78 + ratio * 0.9;
+  return `${size.toFixed(2)}rem`;
+}
+---
+
+<BaseLayout title="タグ一覧">
+  <h1 class="page-heading">タグ一覧</h1>
+  <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem;">文字が大きいほど記事数が多いタグです</p>
+  <div class="tag-cloud">
+    {tags.map(([tag, count]) => (
+      <a
+        href={`${base}tags/${tag}/`}
+        class="tag-cloud-item"
+        style={`font-size:${fontSize(count)}`}
+        title={`${count}件`}
+      >
+        {tag}
+        <span style="font-size:0.65em;opacity:0.6;margin-left:0.2em">{count}</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

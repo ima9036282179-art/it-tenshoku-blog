@@ -1,0 +1,48 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+const { headings } = Astro.props;
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+{toc.length > 0 && (
+  <nav class="toc" id="toc">
+    <details open>
+      <summary class="toc-title">目次</summary>
+      <ul class="toc-list">
+        {toc.map(h => (
+          <li class={`toc-item toc-h${h.depth}`}>
+            <a href={`#${h.slug}`} data-slug={h.slug}>{h.text}</a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  </nav>
+)}
+
+<script>
+  const tocLinks = document.querySelectorAll<HTMLAnchorElement>('.toc-item a[data-slug]');
+  if (tocLinks.length > 0) {
+    const headingEls = Array.from(tocLinks).map(a => {
+      const slug = a.dataset.slug!;
+      return document.getElementById(slug);
+    }).filter(Boolean) as HTMLElement[];
+
+    function updateActive() {
+      const scrollY = window.scrollY;
+      let active = headingEls[0];
+      for (const h of headingEls) {
+        if (scrollY >= h.offsetTop - 120) {
+          active = h;
+        }
+      }
+      tocLinks.forEach(a => {
+        a.classList.toggle('toc-active', a.dataset.slug === active?.id);
+      });
+    }
+
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+  }
+</script>

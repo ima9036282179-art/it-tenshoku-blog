@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { readingTime } from '../utils/readingTime';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const allTags = [...new Set(posts.flatMap(p => p.data.tags ?? []))];
+
+const categoryClassMap: Record<string, string> = {
+  '転職ノウハウ':     'cat-drama',
+  'エージェント比較': 'cat-quotes',
+  'スキル・学習':     'cat-cast',
+  '体験談':           'cat-history',
+  '働き方':           'cat-analysis',
+};
+function catClass(cat?: string) {
+  return cat ? (categoryClassMap[cat] ?? 'cat-default') : 'cat-default';
+}
+
+function excerpt(description: string) {
+  return description.length > 130 ? description.slice(0, 130) + '…' : description;
+}
+
+const featuredPost = posts[0];
+
+const seriesLinks = [
+  { label: '転職ノウハウ',     tag: '転職ノウハウ',     emoji: '🧭', desc: '進め方・タイミング' },
+  { label: 'エージェント比較', tag: 'エージェント比較', emoji: '⚖️', desc: 'サービス徹底比較' },
+  { label: 'スキル・学習',     tag: 'スキル・学習',     emoji: '📚', desc: '必要スキルと勉強法' },
+  { label: '体験談',           tag: '体験談',           emoji: '🗣️', desc: 'リアルな転職記録' },
+  { label: '働き方',           tag: '働き方',           emoji: '🏢', desc: '年収・リモート・環境' },
+];
+
+const catCounts: Record<string, number> = {};
+for (const s of seriesLinks) {
+  catCounts[s.tag] = posts.filter(p =>
+    p.data.tags?.includes(s.tag) || p.data.category === s.tag
+  ).length;
+}
+---
+
+<BaseLayout title="ホーム">
+  <!-- ヒーローバナー -->
+  <section class="hero-banner" slot="full-width">
+    <div class="hero-banner-inner">
+      <div class="hero-text">
+        <span class="hero-eyecatch">💻</span>
+        <h1 class="hero-catchphrase">ITエンジニアの<br>転職を、<br>後悔しない選択に。</h1>
+        <p class="hero-sub">転職の進め方・タイミング・スキル・おすすめエージェント比較を、現場目線で解説</p>
+        <div class="hero-cta">
+          <a href="#articles" class="hero-btn-primary">記事を読む →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- カテゴリで読む -->
+  {seriesLinks.some(s => catCounts[s.tag] > 0) && (
+    <section class="series-read-section fade-in-up">
+      <p class="series-read-heading">カテゴリで読む</p>
+      <div class="series-read-grid">
+        {seriesLinks.filter(s => catCounts[s.tag] > 0).map(s => (
+          <a href={`${base}tags/${encodeURIComponent(s.tag)}/`} class="series-read-card">
+            <span class="series-read-emoji">{s.emoji}</span>
+            <span class="series-read-label">{s.label}</span>
+            <span class="series-read-count">{catCounts[s.tag]}本</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- おすすめの1本 -->
+  {featuredPost && (
+    <section class="featured-section fade-in-up">
+      <p class="featured-label">最新記事</p>
+      <a href={`${base}blog/${featuredPost.slug}/`} class="featured-banner">
+        {featuredPost.data.eyecatch
+          ? <img src={featuredPost.data.eyecatch} alt={featuredPost.data.title} class="featured-banner-img" loading="lazy" decoding="async" />
+          : <div class="featured-banner-img" style="background: linear-gradient(135deg,#0B3D91,#1E88E5);"></div>
+        }
+        <div class="featured-banner-body">
+          {featuredPost.data.category && <span class="featured-badge">{featuredPost.data.category}</span>}
+          <p class="featured-title">{featuredPost.data.title}</p>
+          <p class="featured-desc">{excerpt(featuredPost.data.description)}</p>
+          <p class="featured-meta">📅 {featuredPost.data.pubDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        </div>
+      </a>
+    </section>
+  )}
+
+  <!-- 記事一覧 -->
+  <section id="articles">
+    <div class="tag-filter" id="tagFilter">
+      <button class="filter-btn active" data-tag="all">すべて</button>
+      {allTags.map(tag => (
+        <button class="filter-btn" data-tag={tag}>{tag}</button>
+      ))}
+    </div>
+
+    <ul class="post-list" id="postList" role="list">
+      {posts.map((post, i) => {
+        const url = `${base}blog/${post.slug}/`;
+        const date = post.data.pubDate.toLocaleDateString('ja-JP', {
+          year: 'numeric', month: 'long', day: 'numeric',
+        });
+        const minutes = readingTime(post.body);
+        const tagsJson = JSON.stringify(post.data.tags ?? []);
+        const cc = catClass(post.data.category);
+        const desc = excerpt(post.data.description);
+        return (
+          <li data-tags={tagsJson} class="fade-in-up" style={`transition-delay: ${Math.min(i * 40, 400)}ms`}>
+            <a href={url} class="post-card" style="display:block;text-decoration:none;">
+              {post.data.eyecatch && (
+                <img src={post.data.eyecatch} alt={post.data.title} class="post-card-eyecatch" loading="lazy" decoding="async" />
+              )}
+              <div class="post-card-body">
+                {post.data.category && (
+                  <span class={`category-badge ${cc}`}>{post.data.category}</span>
+                )}
+                <h2 class="post-card-title">{post.data.title}</h2>
+                <p class="post-card-desc">{desc}</p>
+                <div class="post-card-meta">
+                  <time class="post-date" datetime={post.data.pubDate.toISOString()}>📅 {date}</time>
+                  <span class="reading-time">📖 約{minutes}分</span>
+                  {post.data.tags?.slice(0, 2).map(tag => <span class="tag">{tag}</span>)}
+                </div>
+              </div>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+    <p class="no-results" id="noResults" style="display:none;">該当する記事がありません。</p>
+  </section>
+</BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const items = document.querySelectorAll<HTMLLIElement>('#postList li');
+  const noResults = document.getElementById('noResults')!;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const selected = btn.dataset.tag!;
+      let visible = 0;
+
+      items.forEach(item => {
+        const tags: string[] = JSON.parse(item.dataset.tags || '[]');
+        const show = selected === 'all' || tags.includes(selected);
+        item.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      noResults.style.display = visible === 0 ? 'block' : 'none';
+    });
+  });
+</script>

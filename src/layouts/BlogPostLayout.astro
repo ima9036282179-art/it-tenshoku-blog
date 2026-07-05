@@ -1,0 +1,267 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { readingTime } from '../utils/readingTime';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'blog'>;
+  headings: { depth: number; slug: string; text: string }[];
+  prevPost?: CollectionEntry<'blog'> | null;
+  nextPost?: CollectionEntry<'blog'> | null;
+}
+
+const { entry, headings, prevPost, nextPost } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, category, eyecatch } = entry.data;
+
+const minutes = readingTime(entry.body);
+const postUrl = Astro.url.href;
+const siteUrl = 'https://ima9036282179-art.github.io/it-tenshoku-blog';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const formattedDate = pubDate.toLocaleDateString('ja-JP', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+const formattedUpdated = updatedDate?.toLocaleDateString('ja-JP', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+// Article 構造化データ
+const articleSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: { '@type': 'Person', name: 'エンジニア転職ナビ 運営部', url: `${siteUrl}/` },
+  publisher: { '@type': 'Organization', name: 'エンジニア転職ナビ', url: `${siteUrl}/` },
+  url: postUrl,
+  ...(tags?.length ? { keywords: tags.join(', ') } : {}),
+});
+
+// BreadcrumbList 構造化データ
+const bcItems = [
+  { '@type': 'ListItem', position: 1, name: 'ホーム', item: `${siteUrl}/` },
+  ...(category ? [{ '@type': 'ListItem', position: 2, name: category, item: `${siteUrl}/` }] : []),
+  { '@type': 'ListItem', position: category ? 3 : 2, name: title, item: postUrl },
+];
+const breadcrumbSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: bcItems,
+});
+
+// パンくず表示用
+const crumbs = [
+  { label: 'ホーム', href: base },
+  ...(category ? [{ label: category }] : []),
+  { label: title },
+];
+
+// 関連記事（タグ一致数の多い順に最大3件）
+const allPosts = await getCollection('blog');
+const currentTags = tags ?? [];
+const scored = allPosts
+  .filter(p => p.slug !== entry.slug)
+  .map(p => ({
+    post: p,
+    score: (p.data.tags ?? []).filter(t => currentTags.includes(t)).length,
+  }))
+  .sort((a, b) => b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf());
+const relatedPosts = scored.slice(0, 3).map(s => s.post);
+
+// 転職ノウハウなど連載カテゴリで「記事一覧」ボタンを表示
+const isEpSeries = category === '転職ノウハウ';
+---
+
+<BaseLayout title={title} description={description} ogType="article">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={articleSchema} />
+    <script type="application/ld+json" set:html={breadcrumbSchema} />
+  </Fragment>
+  <article>
+    <Breadcrumb items={crumbs} />
+    <header class="post-hero">
+      {category && <span class="category-badge">{category}</span>}
+      <h1 class="post-title">{title}</h1>
+      <div class="post-meta">
+        <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+        {formattedUpdated && <span>（更新: {formattedUpdated}）</span>}
+        <span class="reading-time">📖 約{minutes}分で読めます</span>
+      </div>
+      {tags && (
+        <div class="post-tags">
+          {tags.map(tag => (
+            <a href={`${base}tags/${tag}/`} class="tag">{tag}</a>
+          ))}
+        </div>
+      )}
+    </header>
+
+    {eyecatch && (
+      <div class="post-eyecatch-wrap">
+        <img src={eyecatch} alt={title} class="post-eyecatch" loading="eager" decoding="async" />
+      </div>
+    )}
+
+    <div class="post-layout">
+      <div class="prose">
+        <slot />
+      </div>
+      <aside class="toc-sidebar">
+        <TableOfContents headings={headings} />
+      </aside>
+    </div>
+
+    {/* 役に立ったボタン */}
+    <div class="helpful-section" id="helpfulSection">
+      <p class="helpful-question">この記事は役に立ちましたか？</p>
+      <div class="helpful-btns">
+        <button class="helpful-btn" id="helpfulYes">👍 役に立った</button>
+        <button class="helpful-btn" id="helpfulNo">🤔 まだ疑問がある</button>
+      </div>
+      <p class="helpful-thanks" id="helpfulThanks">ありがとうございます！引き続き良い記事をお届けします。</p>
+    </div>
+
+    {/* シリーズナビ（前後記事・サムネイル付き） */}
+    {(prevPost || nextPost) && (
+      <nav class="post-series-nav">
+        {prevPost ? (
+          <a href={`${base}blog/${prevPost.slug}/`} class="post-series-nav-item">
+            {prevPost.data.eyecatch && <img src={prevPost.data.eyecatch} alt={prevPost.data.title} class="post-series-nav-thumb" loading="lazy" />}
+            <span class="post-series-nav-label">← 前の記事</span>
+            <span class="post-series-nav-title">{prevPost.data.title}</span>
+          </a>
+        ) : <span />}
+        {nextPost ? (
+          <a href={`${base}blog/${nextPost.slug}/`} class="post-series-nav-item next">
+            {nextPost.data.eyecatch && <img src={nextPost.data.eyecatch} alt={nextPost.data.title} class="post-series-nav-thumb" loading="lazy" />}
+            <span class="post-series-nav-label">次の記事 →</span>
+            <span class="post-series-nav-title">{nextPost.data.title}</span>
+          </a>
+        ) : <span />}
+      </nav>
+    )}
+
+    {/* 次に読む（1本大きく） */}
+    {scored[0] && (
+      <section class="next-post-section">
+        <p class="next-post-label">次に読む</p>
+        <a href={`${base}blog/${scored[0].post.slug}/`} class="next-post-banner">
+          {scored[0].post.data.eyecatch
+            ? <img src={scored[0].post.data.eyecatch} alt={scored[0].post.data.title} class="next-post-img" loading="lazy" decoding="async" />
+            : <div class="next-post-img" style="background: linear-gradient(135deg,#450A0A,#7F1D1D);" />
+          }
+          <div class="next-post-body">
+            {scored[0].post.data.category && <span class="category-badge" style="font-size:0.68rem;">{scored[0].post.data.category}</span>}
+            <p class="next-post-title">{scored[0].post.data.title}</p>
+            <p class="next-post-desc">{scored[0].post.data.description?.slice(0, 90)}…</p>
+          </div>
+        </a>
+      </section>
+    )}
+
+    {/* 関連記事（2〜4件） */}
+    {scored.length > 1 && (
+      <section class="related-posts-section">
+        <h2 class="related-posts-title">関連記事</h2>
+        <div class="related-posts-grid">
+          {scored.slice(1, 4).map(s => (
+            <a href={`${base}blog/${s.post.slug}/`} class="related-post-card">
+              {s.post.data.eyecatch && (
+                <img src={s.post.data.eyecatch} alt={s.post.data.title} class="related-post-img" loading="lazy" decoding="async" />
+              )}
+              <p class="related-post-title">{s.post.data.title}</p>
+              <time class="related-post-date">{s.post.data.pubDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}</time>
+            </a>
+          ))}
+        </div>
+        {isEpSeries && (
+          <div class="series-btn-wrap">
+            <a href={base} class="series-btn">▶ 記事一覧を見る</a>
+          </div>
+        )}
+      </section>
+    )}
+
+    {/* 著者カード */}
+    <div class="author-card">
+      <div class="author-card-icon">💻</div>
+      <div class="author-card-body">
+        <p class="author-card-name">エンジニア転職ナビ 運営部</p>
+        <p class="author-card-bio">複数の開発現場を経験したエンジニア視点で、転職の進め方・スキル・エージェント選びを実体験ベースで発信しています。</p>
+        <div class="author-card-links">
+          <a href={`${base}about/`} class="author-card-link">運営者情報を見る</a>
+        </div>
+      </div>
+    </div>
+
+    <ShareButtons title={title} url={postUrl} />
+
+    <nav class="post-nav">
+      <a href={base}>&larr; 記事一覧へ戻る</a>
+    </nav>
+  </article>
+</BaseLayout>
+
+<!-- Instagram 埋め込みスクリプト（記事内 instagram-media がある場合に使用） -->
+<script async src="//www.instagram.com/embed.js" is:inline></script>
+
+<script>
+  // コードブロック コピーボタン
+  document.querySelectorAll('pre > code').forEach(code => {
+    const pre = code.parentElement!;
+    const btn = document.createElement('button');
+    btn.className = 'copy-code-btn';
+    btn.textContent = 'コピー';
+    btn.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(code.textContent ?? '');
+      btn.textContent = '✓ コピー済み';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+    });
+    pre.appendChild(btn);
+  });
+
+  // Lightbox
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  const lbImg = document.createElement('img');
+  lbImg.className = 'lightbox-img';
+  overlay.appendChild(lbImg);
+  document.body.appendChild(overlay);
+  document.querySelectorAll<HTMLImageElement>('.prose img').forEach(img => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => {
+      lbImg.src = img.src;
+      lbImg.alt = img.alt;
+      overlay.classList.add('active');
+    });
+  });
+  overlay.addEventListener('click', () => overlay.classList.remove('active'));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('active'); });
+
+  // 役に立ったボタン
+  const key = 'helpful_' + location.pathname;
+  const yesBtn = document.getElementById('helpfulYes') as HTMLButtonElement;
+  const noBtn  = document.getElementById('helpfulNo')  as HTMLButtonElement;
+  const thanks = document.getElementById('helpfulThanks') as HTMLElement;
+  const stored = localStorage.getItem(key);
+  if (stored) {
+    (stored === 'yes' ? yesBtn : noBtn)?.classList.add('selected');
+    if (thanks) thanks.style.display = 'block';
+  }
+  [yesBtn, noBtn].forEach(btn => {
+    btn?.addEventListener('click', () => {
+      const val = btn.id === 'helpfulYes' ? 'yes' : 'no';
+      localStorage.setItem(key, val);
+      yesBtn?.classList.toggle('selected', val === 'yes');
+      noBtn?.classList.toggle('selected', val === 'no');
+      if (thanks) thanks.style.display = 'block';
+    });
+  });
+</script>
