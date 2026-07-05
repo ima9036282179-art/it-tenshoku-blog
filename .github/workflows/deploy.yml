@@ -11,6 +11,11 @@ permissions:
   pages: write
   id-token: write
 
+# 同時に複数のデプロイが走って競合しないようにする
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
